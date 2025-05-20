@@ -13,13 +13,45 @@ interface ColorPickerProps {
 }
 
 export function ColorPicker({ selectedColor, onColorSelect }: ColorPickerProps) {
+  let paletteIconColor: string;
+
+  if (selectedColor === "var(--card-bg-default)") {
+    // Card background is default (likely white), icon uses foreground color (dark)
+    paletteIconColor = "hsl(var(--foreground))";
+  } else if (typeof selectedColor === 'string' && selectedColor.startsWith("#")) {
+    // Selected color is a hex, and it's likely the background of the card.
+    // Determine icon color based on brightness of selectedColor.
+    const hex = selectedColor.replace("#", "");
+    if (hex.length === 6) {
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+      // Simple brightness calculation (sum of RGB values)
+      // A more accurate formula is (0.299*R + 0.587*G + 0.114*B)
+      const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+      
+      if (brightness > 128) { // If selectedColor is light
+        paletteIconColor = "hsl(var(--foreground))"; // Use dark icon
+      } else { // If selectedColor is dark
+        paletteIconColor = "hsl(var(--primary-foreground))"; // Use light icon (white)
+      }
+    } else {
+      // Fallback for invalid hex length
+      paletteIconColor = "hsl(var(--foreground))";
+    }
+  } else {
+    // Fallback for other color formats or unexpected values, default to foreground.
+    // This ensures visibility on light backgrounds if selectedColor is not a parsable hex.
+    paletteIconColor = "hsl(var(--foreground))";
+  }
+
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="ghost" size="icon" aria-label="Change note color" className="h-8 w-8">
           <Palette
             className="h-4 w-4"
-            style={{ color: selectedColor === "var(--card-bg-default)" ? "hsl(var(--foreground))" : selectedColor }}
+            style={{ color: paletteIconColor }}
           />
         </Button>
       </PopoverTrigger>
@@ -46,5 +78,3 @@ export function ColorPicker({ selectedColor, onColorSelect }: ColorPickerProps) 
     </Popover>
   );
 }
-
-    
