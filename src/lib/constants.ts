@@ -1,5 +1,5 @@
 
-export const DEFAULT_NOTE_COLOR = "var(--card-bg-default)"; 
+export const DEFAULT_NOTE_COLOR = "#FFF9C4"; 
 
 export const NOTE_COLORS = [
   { name: "Default", value: "var(--card-bg-default)" },
